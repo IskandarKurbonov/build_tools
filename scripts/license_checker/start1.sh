@@ -11,14 +11,18 @@ touch "$NOMATCH_LOG"
 LICENSE_REGEX="^\/\*\*"
 LICENSE_END_REGEX="\*\/$"
 
+PHP_REGEX="^[\s\t]*\/\/"
+PHP_END_REGEX="\s*$"
+
 deleted=false
 not_deleted=false
 
 find "$REPO_DIR" -type f ! \( -path "*/.git/*" -o -path "*/.github/*" -o -iname "*.jpg" -o -iname "*.png" -o -iname "*.svg" -o -iname "*.gif" -o -iname "*.ico" -o -iname "*lock*" -o -iname "*license*" -o -iname "*.yml" -o -iname "*.chm" -o -iname "*.dll" -o -iname "*.proj" \) | while read -r file; do
     if grep -q "Ascensio System" "$file"; then
-        if grep -qE "$LICENSE_REGEX" "$file"; then
-            if grep -qE "$LICENSE_END_REGEX" "$file"; then
+        if grep -qE "$LICENSE_REGEX|$PHP_REGEX" "$file"; then
+            if grep -qE "$LICENSE_END_REGEX|$PHP_END_REGEX" "$file"; then
                 sed -i '/^\/\*\*/,/\*\/$/d' "$file"
+                sed -i '/^[\s\t]*\/\/,\s*$/d' "$file"
                 echo "$file" >> "$DELETED_LOG"
                 deleted=true
             else
